@@ -32,9 +32,9 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> saveBook(@RequestBody @Valid BookDTO bookDTO){
+    public ResponseEntity<Object> saveBook(@RequestBody @Valid BookDTO bookDTO) {
         Optional<AuthorModel> author = authorRepository.findById(bookDTO.getAuthorId());
-        if(author.isEmpty()){
+        if (author.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado");
         }
 
@@ -45,28 +45,49 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BookModel>> findAllBook(){
+    public ResponseEntity<List<BookModel>> findAllBook() {
         return ResponseEntity.status(HttpStatus.OK).body(bookService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getOneBook (@PathVariable UUID id){
+    public ResponseEntity<Object> getOneBook(@PathVariable UUID id) {
         Optional<BookModel> bookModelOptional = bookService.findById(id);
-        if(!bookModelOptional.isPresent()){
+        if (!bookModelOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(bookModelOptional.get());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteBook (@PathVariable UUID id){
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateBook(@PathVariable UUID id, @Valid @RequestBody BookDTO bookDTO) {
         Optional<BookModel> bookModelOptional = bookService.findById(id);
-        if(!bookModelOptional.isPresent()){
+        if (!bookModelOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
         }
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
+        Optional<AuthorModel> author = authorRepository.findById(bookDTO.getAuthorId());
+        if (author.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado");
+        }
+
+        var book = new BookModel();
+        BeanUtils.copyProperties(bookDTO, book);
+        book.setAuthorId(author.get());
+        book.setId(bookModelOptional.get().getId());
+
+        return ResponseEntity.status(HttpStatus.OK).body(bookService.save(book));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteBook(@PathVariable UUID id) {
+        Optional<BookModel> bookModelOptional = bookService.findById(id);
+        if (!bookModelOptional.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
+        }
+
+        bookService.delete(bookModelOptional.get());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
+
+    }
 }
