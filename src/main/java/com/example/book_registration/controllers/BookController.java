@@ -1,7 +1,9 @@
 package com.example.book_registration.controllers;
 
 import com.example.book_registration.dtos.BookDTO;
+import com.example.book_registration.models.AuthorModel;
 import com.example.book_registration.models.BookModel;
+import com.example.book_registration.repositories.AuthorRepository;
 import com.example.book_registration.services.BookService;
 import jakarta.validation.Valid;
 import org.apache.coyote.Response;
@@ -22,14 +24,23 @@ public class BookController {
     @Autowired
     BookService bookService;
 
+    @Autowired
+    AuthorRepository authorRepository;
+
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }
 
     @PostMapping
     public ResponseEntity<Object> saveBook(@RequestBody @Valid BookDTO bookDTO){
+        Optional<AuthorModel> author = authorRepository.findById(bookDTO.getAuthorId());
+        if(author.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado");
+        }
+
         var book = new BookModel();
         BeanUtils.copyProperties(bookDTO, book);
+        book.setAuthorId(author.get());
         return ResponseEntity.status(HttpStatus.CREATED).body(bookService.save(book));
     }
 

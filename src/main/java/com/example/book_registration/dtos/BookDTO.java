@@ -1,6 +1,7 @@
 package com.example.book_registration.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class BookDTO {
 
@@ -9,6 +10,9 @@ public class BookDTO {
 
     @NotBlank
     private String description;
+
+    @NotNull
+    private Long authorId;
 
     public String getName() {
         return name;
@@ -26,4 +30,11 @@ public class BookDTO {
         this.description = description;
     }
 
+    public Long getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
+    }
 }

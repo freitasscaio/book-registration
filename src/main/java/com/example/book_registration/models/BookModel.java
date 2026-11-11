@@ -21,7 +21,7 @@ public class BookModel implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "author_id")
-    private AuthorModel authorModel;
+    private AuthorModel authorId;
 
     public UUID getId() {
         return id;
@@ -45,5 +45,13 @@ public class BookModel implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public AuthorModel getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(AuthorModel authorId) {
+        this.authorId = authorId;
     }
 }

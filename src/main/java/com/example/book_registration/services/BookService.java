@@ -1,6 +1,7 @@
 package com.example.book_registration.services;
 
 import com.example.book_registration.models.BookModel;
+import com.example.book_registration.repositories.AuthorRepository;
 import com.example.book_registration.repositories.BookRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,9 @@ public class BookService {
 
     @Autowired
     BookRepository bookRepository;
+
+    @Autowired
+    AuthorRepository authorRepository;
 
     @Transactional
     public BookModel save(BookModel bookModel) {
