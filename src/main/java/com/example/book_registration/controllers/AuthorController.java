@@ -1,5 +1,6 @@
 package com.example.book_registration.controllers;
 
+import com.example.book_registration.dtos.AuthorBooksResponseDTO;
 import com.example.book_registration.dtos.AuthorDTO;
 import com.example.book_registration.dtos.BookResponseDTO;
 import com.example.book_registration.models.AuthorModel;
@@ -30,6 +31,21 @@ public class AuthorController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authorService.save(author));
     }
 
+    @GetMapping
+    public ResponseEntity<List<AuthorBooksResponseDTO>> findAll(){
+
+        List<AuthorBooksResponseDTO> response = authorService.findAll().stream()
+                .map(author -> {
+                    List<BookResponseDTO> books = author.getBooks().stream()
+                            .map(b -> new BookResponseDTO(b.getId(), b.getName(), b.getDescription()))
+                            .toList();
+                    return new AuthorBooksResponseDTO(author.getId(), author.getName(), books);
+                })
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}/books")
     public ResponseEntity<Object> findAllBooksById(@PathVariable Long id){
         Optional<AuthorModel> authorModelOptional = authorService.findById(id);
@@ -37,11 +53,16 @@ public class AuthorController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Autor não encontrado");
         }
 
-        List<BookResponseDTO> book = authorModelOptional.get().getBooks().stream()
+        AuthorModel author = authorModelOptional.get();
+
+        List<BookResponseDTO> book = author.getBooks().stream()
                 .map(b -> new BookResponseDTO(b.getId(), b.getName(), b.getDescription()))
                 .toList();
 
-        return ResponseEntity.ok(book);
+
+        var response = new AuthorBooksResponseDTO(author.getId(), author.getName(), book);
+
+        return ResponseEntity.ok(response);
     }
 
 }
